@@ -6,11 +6,14 @@ public class EnemyX : MonoBehaviour
 {
     public float speed;
     private Rigidbody enemyRb;
+
+    [SerializeField]
     private GameObject playerGoal;
 
     // Start is called before the first frame update
     void Start()
     {
+        playerGoal = GameObject.Find("Player");
         enemyRb = GetComponent<Rigidbody>();
     }
 
