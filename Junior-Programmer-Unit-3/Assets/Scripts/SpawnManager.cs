@@ -11,16 +11,21 @@ public class SpawnManager : MonoBehaviour
     public float StartDelay = 2;
 
     public float RepeatRate = 2;
+    private PlayerController playerController;
 
     // Start is called before the first frame update
     void Start()
     {
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
         InvokeRepeating("InstantiatePrefab", StartDelay, RepeatRate);
     }
 
     // Update is called once per frame
     void InstantiatePrefab()
     {
-        Instantiate(SpawnPrefab, SpawnPosition, SpawnPrefab.transform.rotation);
+        if (!playerController.IsGameOver)
+        {
+            Instantiate(SpawnPrefab, SpawnPosition, SpawnPrefab.transform.rotation);
+        }
     }
 }
