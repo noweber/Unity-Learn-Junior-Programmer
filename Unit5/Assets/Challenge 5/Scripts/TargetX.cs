@@ -14,28 +14,54 @@ public class TargetX : MonoBehaviour
     private float minValueX = -3.75f; // the x value of the center of the left-most square
     private float minValueY = -3.75f; // the y value of the center of the bottom-most square
     private float spaceBetweenSquares = 2.5f; // the distance between the centers of squares on the game board
-    
 
+    float minSpeed = 12;
+    float maxSpeed = 16;
+    float maxTorque = 10;
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.AddForce(RandomForce(), ForceMode.Impulse);
+        rb.AddTorque(RandomTorque(), RandomTorque(), RandomTorque(), ForceMode.Impulse);
         gameManagerX = GameObject.Find("Game Manager").GetComponent<GameManagerX>();
 
-        transform.position = RandomSpawnPosition(); 
+        transform.position = RandomSpawnPosition();
         StartCoroutine(RemoveObjectRoutine()); // begin timer before target leaves screen
 
     }
 
+    Vector3 RandomForce()
+    {
+        return Vector3.up * Random.Range(minSpeed, maxSpeed);
+    }
+
+    float RandomTorque()
+    {
+        return Random.Range(-maxTorque, maxTorque);
+    }
+
+    Vector3 RandomPosition()
+    {
+        return new Vector3(Random.Range(minValueX, -minValueX), minValueY);
+    }
+
     // When target is clicked, destroy it, update score, and generate explosion
-    private void OnMouseEnter()
+    private void OnMouseDown()
     {
         if (gameManagerX.isGameActive)
         {
             Destroy(gameObject);
-            gameManagerX.UpdateScore(pointValue);
+            if (pointValue > 0)
+            {
+                gameManagerX.UpdateScore(pointValue);
+            } else
+            {
+                gameManagerX.GameOver();
+            }
+            
             Explode();
         }
-               
+
     }
 
     // Generate a random spawn position based on a random index from 0 to 3
@@ -50,7 +76,7 @@ public class TargetX : MonoBehaviour
     }
 
     // Generates random square index from 0 to 3, which determines which square the target will appear in
-    int RandomSquareIndex ()
+    int RandomSquareIndex()
     {
         return Random.Range(0, 4);
     }
@@ -64,18 +90,18 @@ public class TargetX : MonoBehaviour
         if (other.gameObject.CompareTag("Sensor") && !gameObject.CompareTag("Bad"))
         {
             gameManagerX.GameOver();
-        } 
+        }
 
     }
 
     // Display explosion particle at object's position
-    void Explode ()
+    void Explode()
     {
         Instantiate(explosionFx, transform.position, explosionFx.transform.rotation);
     }
 
     // After a delay, Moves the object behind background so it collides with the Sensor object
-    IEnumerator RemoveObjectRoutine ()
+    IEnumerator RemoveObjectRoutine()
     {
         yield return new WaitForSeconds(timeOnScreen);
         if (gameManagerX.isGameActive)
